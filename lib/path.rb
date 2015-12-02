@@ -37,6 +37,10 @@ class Path < Trema::Controller
     path.last
   end
 
+  def length
+    path.length / 2
+  end
+
   private
 
   def flows
@@ -44,6 +48,7 @@ class Path < Trema::Controller
   end
 
   def flow_mod_add_to_each_switch
+    return if path.length == 1
     path.each_slice(2) do |in_port, out_port|
       send_flow_mod_add(out_port.dpid,
                         hard_timeout: 60,
@@ -53,6 +58,7 @@ class Path < Trema::Controller
   end
 
   def flow_mod_delete_to_each_switch
+    return if path.length == 1
     path.each_slice(2) do |in_port, out_port|
       send_flow_mod_delete(out_port.dpid,
                            match: exact_match(in_port.number),
@@ -65,6 +71,6 @@ class Path < Trema::Controller
   end
 
   def path
-    @full_path[1..-2]
+    @full_path.length > 1 ? @full_path[1..-2] : @full_path
   end
 end
